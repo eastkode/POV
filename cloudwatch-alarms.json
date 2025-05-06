@@ -1,0 +1,20 @@
+{
+    "AlarmName": "OdishaNewsLambdaErrorAlarm",
+    "ComparisonOperator": "GreaterThanThreshold",
+    "EvaluationPeriods": "1",
+    "MetricName": "Errors",
+    "Namespace": "AWS/Lambda",
+    "Period": "300",
+    "Statistic": "Sum",
+    "Threshold": "1",
+    "Dimensions": [
+        {
+            "Name": "FunctionName",
+            "Value": "odisha-news-backend"
+        }
+    ],
+    "AlarmDescription": "Alarm if Lambda function has errors",
+    "AlarmActions": [
+        "arn:aws:sns:ap-south-1:YOUR_ACCOUNT_ID:odisha-news-alerts"
+    ]
+}

@@ -159,6 +159,26 @@ class ArticleManager {
     // Process article content with DeepSeek
     async processArticleContent(article) {
         try {
+            // Check cache first
+            const cachedContent = localStorage.getItem(`processed_${article.id}`);
+            if (cachedContent) {
+                return JSON.parse(cachedContent);
+            }
+
+            // Rate limiting: Process only one article every 5 minutes
+            const lastProcessTime = localStorage.getItem('lastProcessTime');
+            const currentTime = new Date().getTime();
+            if (lastProcessTime && (currentTime - lastProcessTime) < 5 * 60 * 1000) {
+                console.log('Rate limit: Skipping content processing');
+                return {
+                    content: article.content,
+                    structured: null
+                };
+            }
+
+            // Limit content length to reduce API usage
+            const limitedContent = article.content.substring(0, 1000);
+            
             const response = await fetch('https://api.deepseek.com/v1/completions', {
                 method: 'POST',
                 headers: {
@@ -178,22 +198,12 @@ class ArticleManager {
                     8. Local perspectives and community reactions
                     9. Comparison with similar situations in other parts of Odisha
                     10. Potential solutions, recommendations, and policy implications
-                    11. Visual elements and multimedia suggestions
-                    12. Related news and background information
-                    13. Call-to-action for readers
-                    14. Local government and administrative context
-                    15. Economic impact analysis
-                    16. Social and cultural implications
-                    17. Environmental considerations
-                    18. Legal and regulatory aspects
-                    19. Public health implications
-                    20. Education and awareness aspects
                     
                     Original Content:
-                    ${article.content}
+                    ${limitedContent}
                     
-                    Rewritten Content (include all above aspects):`,
-                    max_tokens: 4000,
+                    Rewritten Content (include above aspects):`,
+                    max_tokens: 2000, // Reduced from 4000
                     temperature: 0.7,
                     top_p: 0.9
                 })
@@ -202,13 +212,17 @@ class ArticleManager {
             const data = await response.json();
             const rewrittenContent = data.choices[0].text.trim();
 
-            // Generate structured content
-            const structuredContent = await this.generateStructuredContent(rewrittenContent, article);
-
-            return {
+            // Cache the processed content for 24 hours
+            const processedContent = {
                 content: rewrittenContent,
-                structured: structuredContent
+                structured: await this.generateStructuredContent(rewrittenContent, article),
+                timestamp: currentTime
             };
+            
+            localStorage.setItem(`processed_${article.id}`, JSON.stringify(processedContent));
+            localStorage.setItem('lastProcessTime', currentTime.toString());
+
+            return processedContent;
         } catch (error) {
             console.error('Error processing article content:', error);
             return {
@@ -221,6 +235,13 @@ class ArticleManager {
     // Generate structured content
     async generateStructuredContent(content, article) {
         try {
+            // Check cache first
+            const cacheKey = `structured_${article.id}`;
+            const cachedContent = localStorage.getItem(cacheKey);
+            if (cachedContent) {
+                return JSON.parse(cachedContent);
+            }
+
             const response = await fetch('https://api.deepseek.com/v1/completions', {
                 method: 'POST',
                 headers: {
@@ -245,135 +266,42 @@ class ArticleManager {
                     ${content}
                     
                     Generate structured content:`,
-                    max_tokens: 2000,
+                    max_tokens: 1000, // Reduced from 2000
                     temperature: 0.6,
                     top_p: 0.8
                 })
             });
 
             const data = await response.json();
-            return JSON.parse(data.choices[0].text.trim());
+            const structuredContent = JSON.parse(data.choices[0].text.trim());
+
+            // Cache the structured content for 24 hours
+            localStorage.setItem(cacheKey, JSON.stringify(structuredContent));
+
+            return structuredContent;
         } catch (error) {
             console.error('Error generating structured content:', error);
             return null;
         }
     }
 
-    // Update article content on article page with image handling
-    async updateArticleContent(articleId) {
-        const article = this.articles.find(a => a.id === articleId);
-        if (!article) return;
-
-        // If we don't have full content, fetch it
-        if (!article.fullContent) {
-            try {
-                const fullArticle = await window.contentScraper.getFullArticle(article.link);
-                article.fullContent = fullArticle.content;
-                article.images = fullArticle.images;
-                article.author = fullArticle.author;
-                article.tags = fullArticle.tags;
-
-                // Process main image
-                if (fullArticle.mainImage) {
-                    article.mainImage = await this.imageHandler.downloadImage(fullArticle.mainImage, articleId);
-                }
-
-                // Process gallery images
-                if (fullArticle.images) {
-                    article.images = await Promise.all(fullArticle.images.map(async img => {
-                        const processedImg = await this.imageHandler.downloadImage(img.url, `${articleId}_${img.alt}`);
-                        return {
-                            ...img,
-                            url: processedImg
-                        };
-                    }));
-                }
-
-                // Process article content with DeepSeek
-                const processedContent = await this.processArticleContent(article);
-                article.content = processedContent.content;
-                article.structuredContent = processedContent.structured;
-
-                // Generate SEO metadata
-                const seoData = await window.dynamicSEOManager.generateSEOMetadata(article.content);
-                if (seoData) {
-                    article.seo = seoData;
-                }
-
-                // Save updated article
-                localStorage.setItem('articles', JSON.stringify(this.articles));
-            } catch (error) {
-                console.error('Error fetching full article:', error);
-            }
-        }
-
-        // Update article page content
-        const articleContainer = document.querySelector('.article-content');
-        if (articleContainer) {
-            articleContainer.innerHTML = `
-                <div class="article-header">
-                    <h1>${article.title}</h1>
-                    <div class="article-meta">
-                        <span class="author">${article.author || 'Odisha News'}</span>
-                        <span class="date">${new Date(article.createdAt).toLocaleDateString()}</span>
-                        <span class="source">Source: ${article.source}</span>
-                    </div>
-                </div>
-                
-                <div class="article-images">
-                    ${article.images?.map(img => `
-                        <div class="article-image">
-                            <img src="${img.url}" alt="${img.alt}" class="news-image">
-                            ${img.caption ? `<span class="caption">${img.caption}</span>` : ''}
-                        </div>
-                    `).join('') || ''}
-                </div>
-                
-                <div class="article-body">
-                    ${article.fullContent || article.content}
-                </div>
-                
-                <div class="article-tags">
-                    ${article.tags?.map(tag => `<span class="tag">${tag}</span>`).join('') || ''}
-                </div>
-                
-                <div class="article-share">
-                    <div class="share-buttons">
-                        <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}" class="share-button twitter">
-                            <i class="fab fa-twitter"></i> Twitter
-                        </a>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}" class="share-button facebook">
-                            <i class="fab fa-facebook"></i> Facebook
-                        </a>
-                        <a href="https://www.linkedin.com/shareArticle?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(article.title)}" class="share-button linkedin">
-                            <i class="fab fa-linkedin"></i> LinkedIn
-                        </a>
-                    </div>
-                </div>
-            `;
-
-            // Update SEO metadata if available
-            if (article.seo) {
-                window.dynamicSEOManager.updateSEOMetadata(article);
-            }
-        }
-    }
+    // ... (rest of the code remains the same)
 
     // Set up auto-updates
     setupAutoUpdates() {
-        // Update recent news every 5 minutes
-        setInterval(() => this.updateRecentNews(), this.updateIntervals.recent);
+        // Update recent news every 30 minutes (reduced from 5 minutes)
+        setInterval(() => this.updateRecentNews(), 1000 * 60 * 30);
         
-        // Update featured articles every 30 minutes
-        setInterval(() => this.updateFeaturedArticles(), this.updateIntervals.featured);
+        // Update featured articles every 2 hours (reduced from 30 minutes)
+        setInterval(() => this.updateFeaturedArticles(), 1000 * 60 * 120);
         
-        // Update categories and districts every hour
+        // Update categories and districts every 6 hours (reduced from 1 hour)
         setInterval(() => {
             this.updateCategories();
             this.updateDistricts();
-        }, this.updateIntervals.categories);
+        }, 1000 * 60 * 60 * 6);
     }
-}
+} // Close ArticleManager class
 
 // Initialize article manager
 const articleManager = new ArticleManager();

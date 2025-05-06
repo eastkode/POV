@@ -1,0 +1,39 @@
+{
+    "CallerReference": "odisha-news-cloudfront",
+    "DefaultRootObject": "index.html",
+    "Origins": {
+        "Items": [
+            {
+                "Id": "odisha-news-origin",
+                "DomainName": "odisha-news-static.s3.amazonaws.com",
+                "S3OriginConfig": {
+                    "OriginAccessIdentity": "origin-access-identity/cloudfront/ODISHA-NEWS-ID"
+                }
+            }
+        ]
+    },
+    "DefaultCacheBehavior": {
+        "TargetOriginId": "odisha-news-origin",
+        "ViewerProtocolPolicy": "redirect-to-https",
+        "AllowedMethods": {
+            "Items": ["GET", "HEAD", "OPTIONS"],
+            "CachedMethods": {
+                "Items": ["GET", "HEAD"],
+                "Quantity": 2
+            },
+            "Quantity": 3
+        },
+        "Compress": true,
+        "DefaultTTL": 86400,
+        "MinTTL": 3600,
+        "MaxTTL": 31536000
+    },
+    "Comment": "Odisha News CloudFront Distribution",
+    "Enabled": true,
+    "PriceClass": "PriceClass_100",
+    "ViewerCertificate": {
+        "ACMCertificateArn": "arn:aws:acm:ap-south-1:YOUR_ACCOUNT_ID:certificate/YOUR_CERTIFICATE_ID",
+        "SSLSupportMethod": "sni-only",
+        "MinimumProtocolVersion": "TLSv1.2_2021"
+    }
+}

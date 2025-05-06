@@ -1,0 +1,89 @@
+service: odisha-news-website
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-south-1
+  memorySize: 128
+  timeout: 10
+  environment:
+    DYNAMODB_TABLE: ${self:custom.tableName}
+    DEEPSEEK_API_KEY: ${env:DEEPSEEK_API_KEY}
+
+custom:
+  tableName: odisha-news-articles
+
+functions:
+  # API Gateway endpoints
+  getArticles:
+    handler: handlers/articles.getArticles
+    events:
+      - http:
+          path: /articles
+          method: get
+  getArticle:
+    handler: handlers/articles.getArticle
+    events:
+      - http:
+          path: /articles/{id}
+          method: get
+  scrapeNews:
+    handler: handlers/scrape.scrapeNews
+    events:
+      - schedule: rate(2 hours)
+  rewriteContent:
+    handler: handlers/rewrite.rewriteContent
+    events:
+      - schedule: rate(3 hours)
+  generateSitemap:
+    handler: handlers/sitemap.generateSitemap
+    events:
+      - schedule: rate(1 day)
+  generateNewsSitemap:
+    handler: handlers/sitemap.generateNewsSitemap
+    events:
+      - schedule: rate(1 day)
+  updateSEO:
+    handler: handlers/seo.updateSEO
+    events:
+      - schedule: rate(4 hours)
+  auth:
+    handler: handlers/auth.authenticate
+    events:
+      - http:
+          path: /auth
+          method: post
+  adsManager:
+    handler: handlers/ads.manageAds
+    events:
+      - http:
+          path: /ads
+          method: post
+
+resources:
+  Resources:
+    ArticlesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: createdAt
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+
+package:
+  individually: true
+
+plugins:
+  - serverless-offline
+  - serverless-dynamodb-local
