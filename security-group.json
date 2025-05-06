@@ -1,0 +1,50 @@
+{
+    "Description": "Security Group for Odisha News Website",
+    "GroupName": "odisha-news-security-group",
+    "VpcId": "vpc-xxxxxxxx",
+    "IpPermissions": [
+        {
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "IpRanges": [
+                {
+                    "CidrIp": "YOUR_IP/32",  // Replace with your IP address
+                    "Description": "SSH access from my IP"
+                }
+            ]
+        },
+        {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "IpRanges": [
+                {
+                    "CidrIp": "0.0.0.0/0",
+                    "Description": "HTTP access"
+                }
+            ]
+        },
+        {
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443,
+            "IpRanges": [
+                {
+                    "CidrIp": "0.0.0.0/0",
+                    "Description": "HTTPS access"
+                }
+            ]
+        }
+    ],
+    "IpPermissionsEgress": [
+        {
+            "IpProtocol": "-1",
+            "IpRanges": [
+                {
+                    "CidrIp": "0.0.0.0/0"
+                }
+            ]
+        }
+    ]
+}

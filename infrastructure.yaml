@@ -1,0 +1,216 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Odisha News Website Infrastructure - Free Tier Optimized'
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t2.micro
+    Description: EC2 Instance Type
+
+  KeyName:
+    Type: String
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+
+  VpcId:
+    Type: String
+    Description: VPC ID
+
+  SubnetId:
+    Type: String
+    Description: Subnet ID
+
+Resources:
+  # Security Group
+  WebsiteSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Odisha News Website
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHAccessCIDR
+          Description: SSH access
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: HTTP access
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: HTTPS access
+
+  # EC2 Instance
+  WebsiteInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: ami-0c55b159cbfafe1f0  # Amazon Linux 2
+      KeyName: !Ref KeyName
+      SecurityGroupIds:
+        - !Ref WebsiteSecurityGroup
+      SubnetId: !Ref SubnetId
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y aws-cli
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          usermod -a -G apache ec2-user
+          chown -R ec2-user:apache /var/www
+          chmod 2775 /var/www
+          find /var/www -type d -exec chmod 2775 {} \;
+          find /var/www -type f -exec chmod 0664 {} \;
+          echo "ServerName localhost" >> /etc/httpd/conf/httpd.conf
+          systemctl restart httpd
+
+  # S3 Bucket for Website
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: odisha-news-website
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+
+  # CloudFront Distribution
+  WebsiteDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: Odisha News Website Distribution
+        Enabled: true
+        Origins:
+          - DomainName: !Sub ${WebsiteBucket}.s3-website-${AWS::Region}.amazonaws.com
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Ref OriginAccessIdentity
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          DefaultTTL: 86400
+          MinTTL: 3600
+          MaxTTL: 31536000
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+
+  # Origin Access Identity
+  OriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: Odisha News Website Origin Access Identity
+
+  # DynamoDB Table
+  ArticlesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: odisha-news-articles
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: createdAt
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  # Lambda Execution Role
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaBasicExecution
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Scan
+                  - dynamodb:UpdateItem
+                Resource: !GetAtt ArticlesTable.Arn
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: !Sub arn:aws:s3:::odisha-news-website/*
+
+  # Lambda Functions
+  ScrapeLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: odisha-news-scrape
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          DYNAMODB_TABLE: !Ref ArticlesTable
+      Code:
+        S3Bucket: odisha-news-website
+        S3Key: lambda/scrape.zip
+
+  RewriteLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: odisha-news-rewrite
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          DYNAMODB_TABLE: !Ref ArticlesTable
+          DEEPSEEK_API_KEY: YOUR_DEEPSEEK_API_KEY
+      Code:
+        S3Bucket: odisha-news-website
+        S3Key: lambda/rewrite.zip
+
+Outputs:
+  WebsiteURL:
+    Description: URL of the website
+    Value: !Sub https://${WebsiteBucket}.s3-website-${AWS::Region}.amazonaws.com
+  CloudFrontURL:
+    Description: URL of the CloudFront distribution
+    Value: !Sub https://${WebsiteDistribution}.cloudfront.net
+  InstancePublicIP:
+    Description: Public IP of the EC2 instance
+    Value: !GetAtt WebsiteInstance.PublicIp
+  DynamoDBTable:
+    Description: DynamoDB Table Name
+    Value: !Ref ArticlesTable
