@@ -1,0 +1,14 @@
+{
+  "name": "odisha-news-website",
+  "version": "1.0.0",
+  "description": "A frontend-only news website for Odisha news",
+  "main": "scripts/download-images.js",
+  "scripts": {
+    "download-images": "node scripts/download-images.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "node-fetch": "^3.3.2",
+    "rss-parser": "^3.12.0"
+  }
+}

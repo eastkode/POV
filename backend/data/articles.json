@@ -1,0 +1,22 @@
+[
+    {
+        "id": "1",
+        "title": "Breaking News: Major Development in Sambalpur District",
+        "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "category": "Politics",
+        "district": "Sambalpur",
+        "imageUrl": "https://odishanews.com/images/sambalpur-news.jpg",
+        "createdAt": "2025-05-06T08:00:00Z",
+        "updatedAt": "2025-05-06T08:00:00Z"
+    },
+    {
+        "id": "2",
+        "title": "Jharsuguda Gets New Industrial Project",
+        "content": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "category": "Business",
+        "district": "Jharsuguda",
+        "imageUrl": "https://odishanews.com/images/jharsuguda-news.jpg",
+        "createdAt": "2025-05-06T07:30:00Z",
+        "updatedAt": "2025-05-06T07:30:00Z"
+    }
+]

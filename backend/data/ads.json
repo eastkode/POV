@@ -1,0 +1,18 @@
+[
+    {
+        "id": "1",
+        "title": "Premium Ad",
+        "imageUrl": "https://odishanews.com/ads/premium-ad.jpg",
+        "link": "https://sponsor.com",
+        "position": "top",
+        "createdAt": "2025-05-06T08:00:00Z"
+    },
+    {
+        "id": "2",
+        "title": "Sidebar Ad",
+        "imageUrl": "https://odishanews.com/ads/sidebar-ad.jpg",
+        "link": "https://sidebar-sponsor.com",
+        "position": "sidebar",
+        "createdAt": "2025-05-06T07:30:00Z"
+    }
+]

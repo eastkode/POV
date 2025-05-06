@@ -1,0 +1,31 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://odishanews.com/sitemap.xml
+
+# News sitemap
+Sitemap: https://odishanews.com/sitemap-news.xml
+
+# News-specific directives
+User-agent: Googlebot-News
+Allow: /
+
+# Disallow specific directories
+Disallow: /admin/
+Disallow: /api/
+Disallow: /includes/
+
+# Allow important directories
+Allow: /districts/
+Allow: /categories/
+Allow: /articles/
+
+# Crawl-delay
+Crawl-delay: 10
+
+# Important pages
+Allow: /about.html
+Allow: /contact.html
+Allow: /privacy.html
+Allow: /terms.html

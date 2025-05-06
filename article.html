@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Article - Odisha News</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .article-header {
+            margin-bottom: 2rem;
+        }
+        .article-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        .article-meta {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .article-image {
+            width: 100%;
+            height: auto;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+        .article-content {
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+        .sidebar {
+            position: sticky;
+            top: 2rem;
+            width: 300px;
+            margin-left: 2rem;
+        }
+        .recent-news {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .recent-news h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        .recent-news-item {
+            margin-bottom: 1rem;
+        }
+        .adsense-placeholder {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        @media (max-width: 992px) {
+            .sidebar {
+                position: static;
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Odisha News</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="district.html">Districts</a></li>
+                <li><a href="category.html">Categories</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="article-container">
+            <div class="article-header">
+                <h1 class="article-title" id="articleTitle"></h1>
+                <div class="article-meta" id="articleMeta"></div>
+            </div>
+            
+            <img src="" alt="" id="articleImage" class="article-image">
+            
+            <div class="article-content" id="articleContent"></div>
+        </div>
+
+        <aside class="sidebar">
+            <div class="recent-news">
+                <h3>Recent News</h3>
+                <div id="recentNewsList"></div>
+            </div>
+
+            <div class="adsense-placeholder">
+                <!-- Google AdSense code here -->
+                <p>Ad placeholder</p>
+            </div>
+        </aside>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Odisha News. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/article.js"></script>
+</body>
+</html>

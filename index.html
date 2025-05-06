@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Latest Odisha News, Breaking News, Western Odisha Updates">
+    <meta name="keywords" content="Odisha news, breaking news, Sambalpur news, Jharsuguda news, Western Odisha">
+    <meta name="author" content="Odisha News">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@odishanews">
+    <meta name="twitter:title" content="Odisha News - Latest Breaking News & Updates">
+    <meta name="twitter:description" content="Get the latest news from Odisha and Western Odisha. Breaking news, politics, sports, and more from Bhubaneswar, Sambalpur, and other districts.">
+    <meta name="twitter:image" content="https://odishanews.com/images/og-image.jpg">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://odishanews.com/">
+    <meta property="og:title" content="Odisha News - Latest Breaking News & Updates">
+    <meta property="og:description" content="Get the latest news from Odisha and Western Odisha. Breaking news, politics, sports, and more from Bhubaneswar, Sambalpur, and other districts.">
+    <meta property="og:image" content="https://odishanews.com/images/og-image.jpg">
+    <title>Odisha News - Latest Breaking News & Updates</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="canonical" href="https://odishanews.com/">
+    <link rel="alternate" hreflang="en-in" href="https://odishanews.com/">
+    <link rel="alternate" hreflang="hi-in" href="https://odishanews.com/hindi/">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "NewsSite",
+        "name": "Odisha News",
+        "url": "https://odishanews.com/",
+        "logo": "https://odishanews.com/images/logo.png",
+        "description": "Latest news and updates from Odisha and Western Odisha",
+        "image": "https://odishanews.com/images/og-image.jpg",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "PO Box 1234",
+            "addressLocality": "Bhubaneswar",
+            "addressRegion": "Odisha",
+            "postalCode": "751001",
+            "addressCountry": "India"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+911234567890",
+            "email": "contact@odishanews.com"
+        }
+    }
+    </script>
+</head>
+<body>
+    <!-- Top News Ticker -->
+    <div class="news-ticker">
+        <marquee behavior="scroll" direction="left" scrollamount="3">
+            <span id="tickerContent"></span>
+        </marquee>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="email" id="loginEmail" required>
+                    <label for="loginEmail">Email</label>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" required>
+                    <label for="loginPassword">Password</label>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+                <p>Don't have an account? <a href="register.html">Register</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Newsletter Popup -->
+    <div id="newsletterPopup" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Subscribe to Our Newsletter</h2>
+            <form id="newsletterForm">
+                <div class="form-group">
+                    <input type="email" id="newsletterEmail" required>
+                    <label for="newsletterEmail">Enter your email</label>
+                </div>
+                <button type="submit" class="btn-primary">Subscribe</button>
+            </form>
+        </div>
+    </div>
+
+    <header>
+        <nav class="main-nav">
+            <div class="logo">
+                <img src="images/logo.png" alt="Odisha News Logo">
+                <span>Odisha News</span>
+            </div>
+            <div class="nav-right">
+                <ul class="nav-links">
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="district.html">Districts</a></li>
+                    <li><a href="category.html">Categories</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button id="loginBtn" class="btn-secondary">Login</button>
+                    <button id="subscribeBtn" class="btn-primary">Subscribe</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-content">
+                    <h1>Latest News</h1>
+                    <p>Stay updated with the latest news from Odisha and Western Odisha</p>
+                </div>
+            </section>
+
+            <div class="filter-options">
+                <div class="filter-group">
+                    <button id="allNews" class="active">All News</button>
+                    <button id="westernOdisha">Western Odisha</button>
+                </div>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search news...">
+                    <button id="searchBtn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+
+            <!-- Featured News -->
+            <section class="featured-news">
+                <h2>Featured News</h2>
+                <div id="featuredGrid" class="news-grid"></div>
+            </section>
+
+            <!-- Latest News -->
+            <section class="latest-news">
+                <h2>Latest News</h2>
+                <div id="newsGrid" class="news-grid"></div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Your trusted source for Odisha news and updates. Providing comprehensive coverage of Western Odisha and beyond.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="sitemap.html">Sitemap</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Newsletter</h3>
+                <form id="footerNewsletter">
+                    <input type="email" placeholder="Enter your email">
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Odisha News. All rights reserved. PO Box 1234, Bhubaneswar, Odisha 751001</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="btn-back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/rss-parser@3.12.0/dist/rss-parser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="js/image-handler.js"></script>
+    <script src="js/content-manager.js"></script>
+    <script src="js/content-scraper.js"></script>
+    <script src="js/article-manager.js"></script>
+    <script src="js/content-filter.js"></script>
+    <script src="js/dynamic-seo.js"></script>
+    <script src="js/auto-update.js"></script>
+    <script>
+        // Initialize content scraper and start scraping
+        document.addEventListener('DOMContentLoaded', () => {
+            window.contentScraper.scrapeContent().then(() => {
+                console.log('Initial content scraping completed');
+                // Initialize article manager
+                window.articleManager.updateArticleDisplay();
+                // Initialize content filter
+                window.contentFilter.updateFilterUI();
+            }).catch(error => {
+                console.error('Error in initial content scraping:', error);
+            });
+        });
+    </script>
+    <script src="js/main.js"></script>
+    <script src="js/newsletter.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>
