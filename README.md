@@ -1,6 +1,6 @@
-# Odisha News Website
+# POV - Odisha News Website
 
-A frontend-only news website that aggregates news from various Odisha news sources, with a focus on Western Odisha region.
+A modern news website focused on Odisha news, with enhanced SEO and content optimization features.
 
 ## Features
 
@@ -11,6 +11,10 @@ A frontend-only news website that aggregates news from various Odisha news sourc
 - News caching using localStorage
 - Loading spinner while fetching news
 - Filter between All News and Western Odisha Only
+- Enhanced SEO with DeepSeek integration
+- Automatic content optimization
+- Structured data generation
+- Social media sharing integration
 
 ## Setup Instructions
 
@@ -45,6 +49,8 @@ Due to browser security restrictions, the website cannot automatically download 
 - JavaScript (ES6+)
 - RSS Parser (via CDN)
 - Moment.js (for date formatting)
+- DeepSeek API for content optimization
+- SEO optimization tools
 
 ## Browser Support
 
